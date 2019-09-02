@@ -1,27 +1,25 @@
 package com.digimon.demo.domain.todo
 
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Column
+import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDateTime
-import javax.persistence.*
-import javax.validation.constraints.NotNull
 
-@Entity
-@Table(name = "todos")
+@Table("todos")
 class Todo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
 
-    @Lob
-    @Column(name = "content")
+    @Column("content")
     var content: String? = null
 
-    @Column(name = "done")
+    @Column("done")
     var done: Boolean = false
 
-    @Column(name = "created_at")
+    @Column("created_at")
     var createdAt: LocalDateTime = LocalDateTime.now()
 
-    @Column(name = "modified_at")
+    @Column("modified_at")
     var modifiedAt: LocalDateTime = createdAt
 }

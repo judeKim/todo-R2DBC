@@ -1,6 +1,6 @@
 package com.digimon.demo.domain.todo
 
-import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.repository.reactive.ReactiveCrudRepository
 
-interface TodoRepository : JpaRepository<Todo, Long>
+interface TodoRepository : ReactiveCrudRepository<Todo, Long>
 
