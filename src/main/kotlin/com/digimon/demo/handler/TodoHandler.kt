@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.ServerResponse.ok
 import org.springframework.web.reactive.function.server.ServerResponse.status
+import org.springframework.web.reactive.function.server.bodyToMono
 import reactor.core.publisher.Mono
 
 
@@ -33,15 +34,16 @@ class TodoHandler {
             .switchIfEmpty(status(HttpStatus.NOT_FOUND).build())
 
     fun save(req: ServerRequest): Mono<ServerResponse> {
+
         return ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(req.bodyToFlux(Todo::class.java)
+                .body(req.bodyToMono(Todo::class.java)
                         .flatMap { todo ->
                             Mono.fromCallable {
-                                repo.save(todo)
-                            }.then(Mono.just(todo))
+                                repo.save(todo).subscribe()
+                            }
                         }
-                ).switchIfEmpty(status(HttpStatus.NOT_FOUND).build())
+                        , Todo::class.java).switchIfEmpty(status(HttpStatus.NOT_FOUND).build())
 
     }
 //

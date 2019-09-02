@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 class Todo {
 
     @Id
-    var id: Long = 0
+    var id: Long? = null
 
     @Column("content")
     var content: String? = null
