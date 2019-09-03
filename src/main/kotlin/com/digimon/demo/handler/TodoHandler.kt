@@ -5,7 +5,6 @@ import com.digimon.demo.domain.todo.TodoRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.ServerResponse.*
@@ -14,8 +13,6 @@ import java.net.URI
 import java.time.LocalDateTime
 import java.util.*
 
-
-@Service
 @Component
 class TodoHandler {
     private val repo: TodoRepository
