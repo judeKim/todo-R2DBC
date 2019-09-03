@@ -13,6 +13,6 @@ internal class AppConfig : AbstractR2dbcConfiguration() {
 
     override fun connectionFactory(): ConnectionFactory =
             H2ConnectionFactory(H2ConnectionConfiguration.builder()
-                    .inMemory("...")
+                    .inMemory("todo")
                     .build())
 }

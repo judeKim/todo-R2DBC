@@ -17,15 +17,9 @@ class TodoRouter(private val handler: TodoHandler) {
                 listOf(
                         GET("/", handler::getAll),
                         GET("/{id}", handler::getById),
-                        POST("/", handler::save))
+                        POST("/", handler::save),
+                        PUT("/{id}/done", handler::done),
+                        DELETE("/{id}", handler::delete))
             }
-//            router {
-//                listOf(
-//                        GET("/", handler::getAll),
-//                        GET("/{id}", handler::getById),
-//                        POST("/", handler::save),
-//                        PUT("/{id}/done", handler::done),
-//                        DELETE("/{id}", handler::delete))
-//            }
     )
 }

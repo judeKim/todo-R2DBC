@@ -8,10 +8,11 @@ import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
-import org.springframework.web.reactive.function.server.ServerResponse.ok
-import org.springframework.web.reactive.function.server.ServerResponse.status
-import org.springframework.web.reactive.function.server.bodyToMono
+import org.springframework.web.reactive.function.server.ServerResponse.*
 import reactor.core.publisher.Mono
+import java.net.URI
+import java.time.LocalDateTime
+import java.util.*
 
 
 @Service
@@ -33,44 +34,27 @@ class TodoHandler {
             .body(repo.findById(req.pathVariable("id").toLong()), Todo::class.java)
             .switchIfEmpty(status(HttpStatus.NOT_FOUND).build())
 
-    fun save(req: ServerRequest): Mono<ServerResponse> {
+    fun save(req: ServerRequest): Mono<ServerResponse> =
+            repo.saveAll(req.bodyToMono(Todo::class.java))
+                    .flatMap { created(URI.create("/todos/${it.id}")).build() }
+                    .next()
 
-        return ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(req.bodyToMono(Todo::class.java)
-                        .flatMap { todo ->
-                            Mono.fromCallable {
-                                repo.save(todo).subscribe()
-                            }
-                        }
-                        , Todo::class.java).switchIfEmpty(status(HttpStatus.NOT_FOUND).build())
+    fun done(req: ServerRequest): Mono<ServerResponse> =
+            repo.findById(req.pathVariable("id").toLong())
+                    .filter(Objects::nonNull)
+                    .flatMap { todo ->
+                        todo.done = true
+                        todo.modifiedAt = LocalDateTime.now()
+                        repo.save(todo)
+                    }
+                    .flatMap {
+                        it?.let { ok().build() }
+                    }
+                    .switchIfEmpty(status(HttpStatus.NOT_FOUND).build())
 
-    }
-//
-//    fun done(req: ServerRequest): Mono<ServerResponse> = ok()
-//            .contentType(MediaType.APPLICATION_JSON)
-//            .body(Mono.justOrEmpty(repo.findById(req.pathVariable("id").toLong()))
-//                    .switchIfEmpty(Mono.empty())
-//                    .filter(Objects::nonNull)
-//                    .flatMap { todo ->
-//                        Mono.fromCallable {
-//                            todo.done = true
-//                            todo.modifiedAt = LocalDateTime.now()
-//                            repo.save(todo)
-//                        }.then(Mono.just(todo))
-//                    }
-//            ).switchIfEmpty(notFound().build())
-//
-//    fun delete(req: ServerRequest): Mono<ServerResponse> = ok()
-//            .contentType(MediaType.APPLICATION_JSON)
-//            .body(Mono.justOrEmpty(repo.findById(req.pathVariable("id").toLong()))
-//                    .switchIfEmpty(Mono.empty())
-//                    .filter(Objects::nonNull)
-//                    .flatMap { todo ->
-//                        Mono.fromCallable {
-//                            repo.delete(todo)
-//                        }.then(Mono.just(todo))
-//                    }
-//            )
-//            .switchIfEmpty(notFound().build())
+    fun delete(req: ServerRequest): Mono<ServerResponse> =
+            repo.findById(req.pathVariable("id").toLong())
+                    .filter(Objects::nonNull)
+                    .flatMap { todo -> ok().build(repo.deleteById(todo.id!!)) }
+                    .switchIfEmpty(status(HttpStatus.NOT_FOUND).build())
 }
